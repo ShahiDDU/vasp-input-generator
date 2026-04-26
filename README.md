@@ -1,8 +1,12 @@
-# VASP Input Generator
+# VASP Input Generator — Free Online DFT Input File GUI
 
-A web-based GUI for generating [VASP](https://www.vasp.at/) input files — **INCAR**, **POSCAR**, **KPOINTS**, and **POTCAR** — through a clean, step-by-step wizard. No coding required.
+> Generate VASP input files (INCAR, POSCAR, KPOINTS, POTCAR) online — no installation, no coding.
 
-Built with [Streamlit](https://streamlit.io) and deployable anywhere with a browser.
+A free, web-based GUI for [VASP](https://www.vasp.at/) (Vienna Ab initio Simulation Package) input file generation. Designed for researchers, students, and computational physicists who want to set up DFT calculations quickly and correctly.
+
+**🌐 Try it live →** *(deploy your own on [Streamlit Community Cloud](https://share.streamlit.io) for free)*
+
+Built with [Streamlit](https://streamlit.io). Works in any browser — no installation required.
 
 ---
 
@@ -125,6 +129,18 @@ vasp-input-generator/
 └── .streamlit/
     └── config.toml         # Theme and server settings
 ```
+
+---
+
+## Related Projects
+
+- [QE Input Generator](https://github.com/ShahiDDU/qe-input-generator) — same wizard UI for Quantum ESPRESSO pw.x
+
+---
+
+## Keywords
+
+`VASP` `VASP input generator` `INCAR generator` `DFT` `density functional theory` `ab initio` `materials science` `computational physics` `band structure` `POSCAR` `KPOINTS` `POTCAR` `HSE06` `DFT+U` `spin-orbit coupling` `molecular dynamics` `streamlit` `online DFT tool`
 
 ---
 
