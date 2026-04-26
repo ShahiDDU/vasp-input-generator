@@ -18,10 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from core.plans import (
-    IS_CLOUD, FREE_CALC_TYPES, UPGRADE_URL,
-    is_pro, is_logged_in, pro_gate, upgrade_banner, setup_auth,
-)
+from core.plans import IS_CLOUD, is_pro, setup_auth
 from core.incar_data import CALC_TEMPLATES, PARAM_INFO, render_incar
 from core.poscar import COMMON_STRUCTURES, cif_to_poscar, get_elements, poscar_info
 from core.kpoints import (
@@ -126,25 +123,6 @@ with st.sidebar:
         tpl = CALC_TEMPLATES.get(ss.calc_type, {})
         st.markdown(f"**Calc:** {tpl.get('icon','')}{tpl.get('label','')}")
 
-    # ── Pricing (cloud only) ─────────────────────────────────────────────────
-    if IS_CLOUD:
-        st.divider()
-        if is_pro():
-            st.success("✅ Pro plan active")
-            email = st.session_state.get("email", "")
-            if email:
-                st.caption(email)
-        else:
-            st.markdown("### ⭐ Pro Plan")
-            st.markdown(
-                "- All 10+ calculation types\n"
-                "- Band structure k-paths\n"
-                "- ZIP download (all files)\n"
-                "- POTCAR variant guide\n"
-                "- Priority support"
-            )
-            st.markdown(f"**$9/month · $79/year**")
-            st.link_button("Upgrade to Pro →", UPGRADE_URL, use_container_width=True, type="primary")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -374,17 +352,7 @@ def step_incar():
     # ── Calculation type selector ─────────────────────────────────────────────
     calc_labels = {k: f"{v['icon']} {v['label']}" for k, v in CALC_TEMPLATES.items()}
 
-    # Free tier: SCF only
-    if IS_CLOUD and not is_pro():
-        upgrade_banner()
-        available_keys = [k for k in CALC_TEMPLATES if k in FREE_CALC_TYPES]
-        st.info(
-            "⭐ **Free plan**: SCF (self-consistent field) is included. "
-            f"[Upgrade to Pro]({UPGRADE_URL}) to unlock relaxation, band structure, "
-            "HSE06, SOC, DFT+U, MD, and more."
-        )
-    else:
-        available_keys = list(CALC_TEMPLATES.keys())
+    available_keys = list(CALC_TEMPLATES.keys())
 
     available_labels = [calc_labels[k] for k in available_keys]
     current_idx = available_keys.index(ss.calc_type) if ss.calc_type in available_keys else 0
@@ -666,20 +634,13 @@ def step_kpoints():
     st.header("Step 3 · K-Points (KPOINTS)")
     st.markdown("Choose the Brillouin zone sampling strategy.")
 
-    if IS_CLOUD and not is_pro():
-        ktype_opts = ["Gamma-centered", "Monkhorst-Pack", "Gamma-only (Γ)", "Manual"]
-        st.info(
-            f"⭐ **Line-mode** (band structure k-paths) requires Pro. "
-            f"[Upgrade →]({UPGRADE_URL})"
-        )
-    else:
-        ktype_opts = [
-            "Gamma-centered",
-            "Monkhorst-Pack",
-            "Gamma-only (Γ)",
-            "Line-mode (band structure)",
-            "Manual",
-        ]
+    ktype_opts = [
+        "Gamma-centered",
+        "Monkhorst-Pack",
+        "Gamma-only (Γ)",
+        "Line-mode (band structure)",
+        "Manual",
+    ]
 
     if ss.kpoints_type not in ktype_opts:
         ss.kpoints_type = ktype_opts[0]
@@ -785,14 +746,6 @@ def _step_potcar_cloud():
 
     if not ss.elements:
         st.warning("Load a structure first (Step 1) to see POTCAR recommendations.")
-        return
-
-    if IS_CLOUD and not is_pro():
-        upgrade_banner()
-        st.info(
-            f"⭐ POTCAR variant recommendations require Pro. "
-            f"[Upgrade →]({UPGRADE_URL})"
-        )
         return
 
     functional = st.radio(
@@ -977,19 +930,15 @@ def _step_download_cloud():
     col2.download_button("⬇️ POSCAR",  ss.poscar_text,   "POSCAR",  disabled=not ss.poscar_text.strip())
     col3.download_button("⬇️ KPOINTS", ss.kpoints_text,  "KPOINTS", disabled=not ss.kpoints_text.strip())
 
-    # ZIP download — Pro only
-    if is_pro():
-        zip_bytes = _build_zip() if all_ready else None
-        col4.download_button(
-            "⬇️ All as ZIP",
-            zip_bytes or b"",
-            "vasp_inputs.zip",
-            mime="application/zip",
-            disabled=not all_ready,
-            help="Downloads INCAR + POSCAR + KPOINTS in one zip file.",
-        )
-    else:
-        col4.markdown(f"[⭐ ZIP (Pro)]({UPGRADE_URL})")
+    zip_bytes = _build_zip() if all_ready else None
+    col4.download_button(
+        "⬇️ All as ZIP",
+        zip_bytes or b"",
+        "vasp_inputs.zip",
+        mime="application/zip",
+        disabled=not all_ready,
+        help="Downloads INCAR + POSCAR + KPOINTS in one zip file.",
+    )
 
     st.divider()
     st.subheader("Next: Run VASP on your cluster")
